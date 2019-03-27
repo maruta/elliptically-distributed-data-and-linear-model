@@ -1,0 +1,173 @@
+﻿<html>
+<canvas id="elip_line" width="500" height="500">
+</canvas><br />
+<label>Aspect Ratio <input type="range" min="0" max="100" style="width:400px" value="0"
+		oninput="redraw_eliplin(this.value)" /></label>
+<script src="data.js"></script>
+<script type="text/javascript">
+	var canvas = document.getElementById('elip_line');
+	if (canvas.getContext) {
+
+		var context = canvas.getContext('2d');
+		var xsize = 430;
+		var ysize = 430;
+		var xoffset = 58;
+		var yoffset = 0;
+		context.strokeRect(xoffset, yoffset, xsize, ysize);
+
+		var xunit = 200;
+		var yunit = 60;
+		var gx = function (x) {
+			return (x * xunit + xoffset + xsize / 2);
+		};
+		var gy = function (y) {
+			return (-y * yunit + yoffset + ysize / 2);
+		};
+		var xlim = function () {
+			return ((xsize / 2) / xunit);
+		};
+		var ylim = function () {
+			return ((ysize / 2) / yunit);
+		};
+
+		var draw_grid = function () {
+			context.clearRect(0, 0, 500, 500);
+			context.strokeStyle = 'rgb(0,0,0)';
+			context.lineWidth = 1;
+			context.strokeRect(xoffset, yoffset, xsize, ysize);
+			context.font = "14pt Meiryo";
+			context.textBaseline = "top";
+			context.textAlign = "center";
+			for (var x = 0; x <= xlim(); x = x + Math.ceil(xlim() / 3 * 2) / 2) {
+				context.beginPath();
+				context.strokeStyle = 'rgb(200,200,200)';
+				context.moveTo(gx(x), gy(ylim()));
+				context.lineTo(gx(x), gy(-ylim()));
+				context.fillText(x, gx(x), gy(-ylim()));
+				context.stroke();
+				context.beginPath();
+				context.strokeStyle = 'rgb(200,200,200)';
+				context.moveTo(gx(-x), gy(ylim()));
+				context.lineTo(gx(-x), gy(-ylim()));
+				context.fillText(-x, gx(-x), gy(-ylim()));
+				context.stroke();
+			}
+			context.fillText('x', gx(0), gy(-ylim()) + 20);
+
+			context.beginPath();
+			context.strokeStyle = 'rgb(0,0,0)';
+			context.moveTo(gx(0), gy(ylim()));
+			context.lineTo(gx(0), gy(-ylim()));
+			context.fillText(0, gx(0), gy(-ylim()));
+			context.stroke();
+
+			context.textBaseline = "middle";
+			context.textAlign = "right";
+			for (var y = 0; y <= ylim(); y = y + Math.ceil(ylim() / 3 * 2) / 2) {
+				if (parseInt(y * 10) == 0) {
+					context.strokeStyle = 'rgb(0,0,0)';
+				} else {
+					context.strokeStyle = 'rgb(200,200,200)';
+				}
+				context.beginPath();
+				context.moveTo(gx(-xlim()), gy(y));
+				context.lineTo(gx(xlim()), gy(y));
+				context.fillText(y, gx(-xlim()) - 2, gy(y))
+				context.stroke();
+				context.beginPath();
+				context.moveTo(gx(-xlim()), gy(-y));
+				context.lineTo(gx(xlim()), gy(-y));
+				context.fillText(-y, gx(-xlim()) - 2, gy(-y))
+				context.stroke();
+			}
+
+			context.beginPath();
+			context.strokeStyle = 'rgb(0,0,0)';
+			context.moveTo(gx(xlim()), gy(0));
+			context.lineTo(gx(-xlim()), gy(0));
+			context.fillText(0, gx(-xlim()) - 2, gy(0));
+			context.stroke();
+			context.fillText('y', gx(-xlim()) - 42, gy(0));
+
+		};
+
+		var draw_scatter = function () {
+			var x, y;
+			context.fillStyle = 'rgba(0,0,0,0.4)';
+			for (var k = 0; k < randmat.length; k++) {
+				x = randmat[k][0] / 2.4;
+				y = x / 4 + randmat[k][1] / 2.4 / 1.6;
+				if (Math.abs(x) < xlim() && Math.abs(y) < ylim()) {
+					context.beginPath();
+					context.arc(gx(x), gy(y), 2, 0, Math.PI * 2, true);
+					context.fill();
+				}
+			}
+		}
+
+		var draw_lines = function () {
+			var draw_linfunc = function (a) {
+				context.beginPath();
+				if (xlim() * a < ylim()) {
+					context.moveTo(gx(-xlim()), gy(-xlim() * a));
+					context.lineTo(gx(xlim()), gy(xlim() * a));
+				} else {
+					context.moveTo(gx(-ylim() / a), gy(-ylim()));
+					context.lineTo(gx(ylim() / a), gy(ylim()));
+				}
+				context.stroke();
+			}
+			context.lineWidth = 3;
+			context.strokeStyle = 'rgb(255,0,0)';
+			draw_linfunc(1 / 3);
+			context.strokeStyle = 'rgb(0,100,255)';
+			draw_linfunc(2);
+		}
+		var draw_legend = function () {
+			context.strokeStyle = 'rgb(0,0,0)';
+			context.fillStyle = 'rgb(255,255,255)';
+			context.lineWidth = 1;
+			context.strokeRect(300, 350, 180, 70);
+			context.fillRect(300, 350, 180, 70);
+			context.font = "14pt Meiryo";
+			context.textBaseline = "top";
+			context.textAlign = "center";
+
+			context.lineWidth = 3;
+			context.strokeStyle = 'rgb(255,0,0)';
+			context.beginPath();
+			context.moveTo(310, 370);
+			context.lineTo(370, 370);
+			context.stroke();
+			context.strokeStyle = 'rgb(0,100,255)';
+			context.beginPath();
+			context.moveTo(310, 400);
+			context.lineTo(370, 400);
+			context.stroke();
+			context.textBaseline = "middle";
+			context.textAlign = "left";
+			context.fillStyle = 'rgb(0,0,0)';
+			context.fillText("y=x/3", 380, 370);
+			context.fillText("y=2x", 380, 400);
+
+		}
+
+		draw_grid();
+		draw_scatter();
+		draw_lines();
+		draw_legend();
+	}
+
+	function redraw_eliplin(pos) {
+		pos = pos / 100;
+		xunit = 200 * (1 - pos) + 50 * pos;
+		yunit = 50 * (1 - pos) + 200 * pos;
+
+		draw_grid();
+		draw_scatter();
+		draw_lines();
+		draw_legend();
+	}
+</script>
+
+</html>
